@@ -1,0 +1,12 @@
+﻿fastapi[standard]
+uvicorn[standard]
+requests
+pandas
+numpy
+yfinance
+sqlalchemy
+psycopg2-binary
+shap
+scikit-learn
+python-dotenv
+matplotlib
