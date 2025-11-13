@@ -129,10 +129,10 @@ def generate_xai_sentences(ticker, start, end):
         tokens = set(tokenize(r.title))
         score = 1 if r.sentiment=="Positive" else -1 if r.sentiment=="Negative" else 0
         for t in tokens:
-            counter[t] += score*r.confidence
+            counter[t] += score * float(r.confidence)
     top_keywords = sorted(counter.items(), key=lambda x: abs(x[1]), reverse=True)[:10]
-    for k,v in top_keywords:
-        ki = KeywordImportance(ticker=ticker, word=k, score=round(v,3))
+    for k, v in top_keywords:
+        ki = KeywordImportance(ticker=ticker, word=k, score=float(round(v, 3)))
         session.add(ki)
     session.commit()
     

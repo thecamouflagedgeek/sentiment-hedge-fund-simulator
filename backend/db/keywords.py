@@ -10,3 +10,4 @@ def store_keywords(ticker, keywords):
         db.add(KeywordImportance(ticker=ticker, word=k["word"], score=k["score"]))
     db.commit()
     db.close()
+from db.db_connect import SessionLocal

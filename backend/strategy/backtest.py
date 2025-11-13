@@ -1,3 +1,4 @@
+ 
 import requests
 import pandas as pd
 import yfinance as yf
@@ -169,3 +170,4 @@ def simulate_strategy(ticker, start=None, end=None):
             .reset_index()
             .to_dict(orient="records")
     }
+
