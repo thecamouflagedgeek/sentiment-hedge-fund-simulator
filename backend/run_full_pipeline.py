@@ -90,7 +90,27 @@ def simulate_strategy(ticker, start, end):
     roi = (portfolio_values[-1] - portfolio_values[0])/portfolio_values[0]*100
     max_drawdown = ((merged["total_value"].cummax() - merged["total_value"])/merged["total_value"].cummax()).max()*100
     
-    return {"ticker": ticker, "metrics": {"ROI%": round(roi,2), "MaxDrawdown%": round(max_drawdown,2)}, "transactions": transactions}
+    # Build price_history for frontend
+    price_history = []
+    for idx, row in merged.iterrows():
+        price_history.append({
+            "date": str(row["date"]),
+            "Close": round(float(row["Close"]), 2),
+            "sentiment_score": round(float(row["sentiment_score"]), 3),
+            "total_value": round(float(row["total_value"]), 2)
+        })
+    
+    return {
+        "ticker": ticker,
+        "price_history": price_history,
+        "transactions": transactions,
+        "metrics": {
+            "InitialCapital": INITIAL_CAPITAL,
+            "ROI%": round(roi, 2),
+            "MaxDrawdown%": round(max_drawdown, 2),
+            "CurrentPortfolioValue": round(portfolio_values[-1], 2)
+        }
+    }
 
 # ----------------------------
 # XAI

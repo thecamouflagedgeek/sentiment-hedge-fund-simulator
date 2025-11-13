@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { runSimulation, fetchXAI } from '../lib/api';
 import Header from './components/Header';
 import StockSelector from './components/StockSelector';
 import PortfolioSummary from './components/PortfolioSummary';
@@ -51,28 +52,34 @@ const MOCK_XAI_DATA: XAIResult = {
 // Frontend Functions to call Backend API (Step 2, 5)
 const fetchSimulation = async (ticker: Ticker): Promise<SimulationResult> => {
   console.log(`Fetching simulation for ${ticker}...`);
-  // TODO: Replace with actual fetch: 
-  // const response = await fetch(`http://127.0.0.1:8001/simulate_strategy?ticker=${ticker}`);
-  // return response.json();
-  await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call latency
-  return {
-    ...MOCK_SIMULATION_DATA,
-    metrics: {
-        ...MOCK_METRICS,
-        'ROI%': parseFloat((Math.random() * 5 - 2.5).toFixed(2)), // Dynamic mock ROI
-        'MaxDrawdown%': parseFloat((Math.random() * -1).toFixed(2)), // Dynamic mock Drawdown
-        'CurrentPortfolioValue': 100000 * (1 + parseFloat((Math.random() * 0.05 - 0.02).toFixed(4)))
-    }
-  }; 
+  try {
+    const response = await runSimulation(ticker, "2025-10-01", "2025-11-12");
+    return response.results || MOCK_SIMULATION_DATA;
+  } catch (error) {
+    console.error("Failed to fetch simulation:", error);
+    // Fallback to mock data if API fails
+    return {
+      ...MOCK_SIMULATION_DATA,
+      metrics: {
+          ...MOCK_METRICS,
+          'ROI%': parseFloat((Math.random() * 5 - 2.5).toFixed(2)),
+          'MaxDrawdown%': parseFloat((Math.random() * -1).toFixed(2)),
+          'CurrentPortfolioValue': 100000 * (1 + parseFloat((Math.random() * 0.05 - 0.02).toFixed(4)))
+      }
+    };
+  }
 };
 
-const fetchXAI = async (ticker: Ticker): Promise<XAIResult> => {
+const fetchXAIData = async (ticker: Ticker): Promise<XAIResult> => {
   console.log(`Fetching XAI for ${ticker}...`);
-  // TODO: Replace with actual fetch: 
-  // const response = await fetch(`http://127.0.0.1:8001/get_xai?ticker=${ticker}`);
-  // return response.json();
-  await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call latency
-  return MOCK_XAI_DATA;
+  try {
+    const response = await fetchXAI(ticker);
+    return response || MOCK_XAI_DATA;
+  } catch (error) {
+    console.error("Failed to fetch XAI:", error);
+    // Fallback to mock data if API fails
+    return MOCK_XAI_DATA;
+  }
 };
 // ---------------------------------------------------
 
@@ -95,7 +102,7 @@ export default function Dashboard() {
       setSimulationResult(simulation);
 
       // Step 5: Fetch XAI Insights (Can run concurrently or sequentially)
-      const xai = await fetchXAI(selectedTicker);
+      const xai = await fetchXAIData(selectedTicker);
       setXAIResult(xai);
 
     } catch (error) {

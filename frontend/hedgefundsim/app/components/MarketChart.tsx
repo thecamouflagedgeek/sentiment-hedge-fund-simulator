@@ -4,12 +4,25 @@ import { ShoppingCart, ShoppingBag } from 'lucide-react';
 
 interface MarketChartProps {
   ticker: string;
-  data: PortfolioDataPoint[];
-  transactions: Transaction[];
+  data: PortfolioDataPoint[] | null | undefined;
+  transactions: Transaction[] | null | undefined;
 }
 
 export default function MarketChart({ ticker, data, transactions }: MarketChartProps) {
   
+  // Guard: if no data, show placeholder
+  if (!data || data.length === 0) {
+    return (
+      <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl">
+        <h2 className="text-xl font-bold text-sky-400 mb-4">
+          Market Reaction & Simulation for {ticker}
+        </h2>
+        <div className="w-full h-96 bg-slate-900 rounded-lg flex items-center justify-center animate-pulse">
+          <p className="text-slate-500 italic">Loading chart data...</p>
+        </div>
+      </div>
+    );
+  }
   // NOTE: In a real Next.js app, you would use a library like react-chartjs-2 here.
   // The Chart.js data would be structured as follows:
   /*
@@ -38,7 +51,7 @@ export default function MarketChart({ ticker, data, transactions }: MarketChartP
   */
   
   // Mock Buy/Sell markers display on the chart area for visual representation
-  const markers = transactions.map(t => ({
+  const markers = (transactions || []).map(t => ({
     ...t,
     label: t.action === 'BUY' ? 'BUY' : 'SELL',
     icon: t.action === 'BUY' ? ShoppingCart : ShoppingBag,

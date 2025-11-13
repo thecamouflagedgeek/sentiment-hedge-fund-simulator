@@ -3,11 +3,11 @@ import { XAIKeyword } from '../../lib/types';
 import { Zap } from 'lucide-react';
 
 interface XAICardProps {
-  keywords: XAIKeyword[];
+  keywords: XAIKeyword[] | null | undefined;
 }
 
 export default function XAICard({ keywords }: XAICardProps) {
-  if (keywords.length === 0) return null;
+  if (!keywords || keywords.length === 0) return null;
 
   // Find max absolute score for scaling the bars
   const maxAbsScore = Math.max(...keywords.map(k => Math.abs(k.score)));

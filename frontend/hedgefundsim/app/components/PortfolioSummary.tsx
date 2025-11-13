@@ -3,35 +3,63 @@ import { Metrics } from '../../lib/types';
 import { DollarSign, TrendingUp, TrendingDown, Briefcase } from 'lucide-react';
 
 interface PortfolioSummaryProps {
-  metrics: Metrics;
+  metrics: Metrics | null | undefined;
 }
 
 export default function PortfolioSummary({ metrics }: PortfolioSummaryProps) {
+  // Guard clause: if metrics is not available, show placeholder
+  if (!metrics) {
+    return (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-4">
+        <div className="p-6 rounded-xl bg-slate-800 border border-slate-700 shadow-xl animate-pulse">
+          <div className="h-8 bg-slate-700 rounded mb-3 w-20"></div>
+          <div className="h-4 bg-slate-700 rounded mb-3 w-24"></div>
+          <div className="h-10 bg-slate-700 rounded"></div>
+        </div>
+        <div className="p-6 rounded-xl bg-slate-800 border border-slate-700 shadow-xl animate-pulse">
+          <div className="h-8 bg-slate-700 rounded mb-3 w-20"></div>
+          <div className="h-4 bg-slate-700 rounded mb-3 w-24"></div>
+          <div className="h-10 bg-slate-700 rounded"></div>
+        </div>
+        <div className="p-6 rounded-xl bg-slate-800 border border-slate-700 shadow-xl animate-pulse">
+          <div className="h-8 bg-slate-700 rounded mb-3 w-20"></div>
+          <div className="h-4 bg-slate-700 rounded mb-3 w-24"></div>
+          <div className="h-10 bg-slate-700 rounded"></div>
+        </div>
+        <div className="p-6 rounded-xl bg-slate-800 border border-slate-700 shadow-xl animate-pulse">
+          <div className="h-8 bg-slate-700 rounded mb-3 w-20"></div>
+          <div className="h-4 bg-slate-700 rounded mb-3 w-24"></div>
+          <div className="h-10 bg-slate-700 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
   const cards = [
     { 
       metric: 'Initial Capital', 
-      value: `$${metrics.InitialCapital.toLocaleString()}`, 
+      value: `$${(metrics.InitialCapital || 0).toLocaleString()}`, 
       icon: DollarSign, 
       color: 'text-amber-400', 
       bg: 'bg-amber-400/10' 
     },
     { 
       metric: 'ROI', 
-      value: `${metrics['ROI%'].toFixed(2)}%`, 
+      value: `${(metrics['ROI%'] || 0).toFixed(2)}%`, 
       icon: TrendingUp, 
-      color: metrics['ROI%'] >= 0 ? 'text-green-500' : 'text-red-500', 
-      bg: metrics['ROI%'] >= 0 ? 'bg-green-500/10' : 'bg-red-500/10' 
+      color: (metrics['ROI%'] || 0) >= 0 ? 'text-green-500' : 'text-red-500', 
+      bg: (metrics['ROI%'] || 0) >= 0 ? 'bg-green-500/10' : 'bg-red-500/10' 
     },
     { 
       metric: 'Max Drawdown', 
-      value: `${metrics['MaxDrawdown%'].toFixed(2)}%`, 
+      value: `${(metrics['MaxDrawdown%'] || 0).toFixed(2)}%`, 
       icon: TrendingDown, 
       color: 'text-red-500', 
       bg: 'bg-red-500/10' 
     },
     { 
       metric: 'Current Portfolio Value', 
-      value: `$${metrics.CurrentPortfolioValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, 
+      value: `$${(metrics.CurrentPortfolioValue || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`, 
       icon: Briefcase, 
       color: 'text-sky-400', 
       bg: 'bg-sky-400/10' 

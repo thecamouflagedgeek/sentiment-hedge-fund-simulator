@@ -179,6 +179,21 @@ def explain_ticker(ticker: str):
         start = "2025-10-01"
         end = "2025-11-12"
         sentences = generate_xai_sentences(ticker, start, end)
-        return {"ticker": ticker, "explanations": sentences}
+        
+        # Get top keywords from database
+        top_keywords = session.query(KeywordImportance).filter(
+            KeywordImportance.ticker == ticker
+        ).order_by(KeywordImportance.importance_score.desc()).limit(10).all()
+        
+        keywords = [
+            {"word": k.keyword, "score": float(k.importance_score)}
+            for k in top_keywords
+        ] if top_keywords else []
+        
+        return {
+            "ticker": ticker,
+            "explanations": sentences,
+            "keywords": keywords
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
