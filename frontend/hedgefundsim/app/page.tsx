@@ -8,6 +8,12 @@ import PortfolioSummary from './components/PortfolioSummary';
 import MarketChart from './components/MarketChart';
 import XAICard from './components/XAICard';
 import { Ticker, SimulationResult, XAIResult, Metrics } from '../lib/types';
+import { Cinzel } from 'next/font/google';
+
+const cinzel = Cinzel({
+  subsets: ['latin'],
+  variable: '--font-cinzel',
+});
 
 // --- MOCK API DATA (Replace with actual fetch calls) ---
 const MOCK_METRICS: Metrics = {
@@ -154,7 +160,7 @@ export default function Dashboard() {
         {/* Initial Welcome Message */}
         {!selectedTicker && !isLoading && !simulationResult && (
              <div className="text-center p-20 bg-slate-900/50 rounded-xl border border-slate-700 shadow-lg">
-                <p className="text-4xl font-bold mb-4 text-sky-400">Welcome to Aura</p>
+                <p className={`${cinzel.className} text-4xl italic font-bold mb-4 text-sky-400`}>Welcome to Aura</p>
                 <p className="text-lg text-slate-300">Select a stock ticker and click 'Run Simulation' to see how our AI-driven strategy performs.</p>
             </div>
         )}

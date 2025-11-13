@@ -49,11 +49,11 @@ const MarketMoodGauge = ({ mood, loading }: { mood: number, loading: boolean }) 
 
             {/* Inner Circle (To create the border/background effect) */}
             {/* Adjusted from [2px] to [1px] for even smaller size */}
-            <div className={`absolute top-[1px] left-[1px] right-[1px] h-[${gaugeWidth}px] rounded-full bg-black/80`}></div>
+            <div className={`absolute top-px left-px right-px h-[${gaugeWidth}px] rounded-full bg-black/80`}></div>
             
             {/* Needle */}
             <div 
-                className={`absolute bottom-0 left-1/2 w-[1px] h-full origin-bottom rounded-full transition-transform duration-500 ${loading ? 'animate-pulse bg-sky-400' : 'bg-white'}`}
+                className={`absolute bottom-0 left-1/2 w-px h-full origin-bottom rounded-full transition-transform duration-500 ${loading ? 'animate-pulse bg-sky-400' : 'bg-white'}`}
                 style={{ transform: `translateX(-50%) rotate(${needleRotation}deg)` }}
             />
             
@@ -88,8 +88,8 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-slate-700/50 p-4">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <h1 className="text-3xl font-extrabold bg-gradient-to-r from-teal-400 to-sky-500 text-transparent bg-clip-text">
-          <span className="font-mono">🧠</span> Sentivest — AI-Driven Hedge Fund Simulator
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-teal-400 to-sky-500 text-transparent bg-clip-text">
+        Aura — Artificial Understanding of Risk & Attitude
         </h1>
         
         {/* Market Mood Gauge & Info (COMPACT) */}
