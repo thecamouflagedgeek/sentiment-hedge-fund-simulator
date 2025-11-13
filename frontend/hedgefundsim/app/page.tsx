@@ -1,42 +1,164 @@
-import Navbar from "./components/Navbar";
-import MarketGauge from "./components/MarketGauge";
-import TickerCard from "./components/TickerCard";
-import NewsCard from "./components/NewsCard";
-import AIInsightBox from "./components/AIInsightBox";
+// app/page.tsx
+'use client';
 
-export default function Home() {
-	return (
-		<div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black text-zinc-50">
-			<Navbar />
-			<main className="max-w-6xl mx-auto p-6 space-y-6">
-				{/* AI Summary Banner */}
-				<section>
-					<AIInsightBox text="Market optimism rises as tech leads gains — keep an eye on earnings & macro updates." />
-				</section>
+import { useState } from 'react';
+import Header from './components/Header';
+import StockSelector from './components/StockSelector';
+import PortfolioSummary from './components/PortfolioSummary';
+import MarketChart from './components/MarketChart';
+import XAICard from './components/XAICard';
+import { Ticker, SimulationResult, XAIResult, Metrics } from '../lib/types';
 
-				{/* Top row: Market Gauge + Search / Quick */}
-				<section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-					<div className="col-span-1 md:col-span-1">
-						<MarketGauge />
-					</div>
+// --- MOCK API DATA (Replace with actual fetch calls) ---
+const MOCK_METRICS: Metrics = {
+  'InitialCapital': 100000,
+  'ROI%': 2.16,
+  'MaxDrawdown%': -0.17,
+  'CurrentPortfolioValue': 102162,
+};
 
-					<div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
-						{/* Example ticker cards - in production replace with fetched list */}
-						<TickerCard ticker="AAPL" avgSentiment={0.12} confidence={0.82} trend="up" />
-						<TickerCard ticker="TSLA" avgSentiment={-0.18} confidence={0.76} trend="down" />
-						<TickerCard ticker="MSFT" avgSentiment={0.05} confidence={0.68} trend="flat" />
-					</div>
-				</section>
+const MOCK_SIMULATION_DATA: SimulationResult = {
+  price_history: [
+    { date: "2025-10-14", Close: 247.53, sentiment_score: 0.299, total_value: 100000 },
+    { date: "2025-10-15", Close: 248.10, sentiment_score: 0.350, total_value: 100000 },
+    { date: "2025-10-16", Close: 246.90, sentiment_score: 0.150, total_value: 99900 },
+    { date: "2025-10-17", Close: 249.01, sentiment_score: 0.050, total_value: 100200 },
+    { date: "2025-10-18", Close: 250.50, sentiment_score: 0.400, total_value: 100500 },
+  ],
+  transactions: [
+    { date: "2025-10-14", action: "BUY", price: 247.53, qty: 40 },
+    { date: "2025-10-18", action: "BUY", price: 250.50, qty: 20 },
+  ],
+  metrics: MOCK_METRICS,
+};
 
-				{/* Recent News Feed */}
-				<section className="bg-slate-800/50 rounded-lg p-4">
-					<h2 className="text-lg font-semibold mb-3">Recent News</h2>
-					<div className="space-y-2 max-h-72 overflow-y-auto">
-						{/* NewsCard is a client component that fetches /get_news */}
-						<NewsCard />
-					</div>
-				</section>
-			</main>
-		</div>
-	);
+const MOCK_XAI_DATA: XAIResult = {
+  keywords: [
+    { word: "earnings", score: 0.48 },
+    { word: "lawsuit", score: -0.22 },
+    { word: "revenue", score: 0.17 },
+    { word: "growth", score: 0.33 },
+    { word: "management", score: -0.10 },
+  ],
+};
+
+// Frontend Functions to call Backend API (Step 2, 5)
+const fetchSimulation = async (ticker: Ticker): Promise<SimulationResult> => {
+  console.log(`Fetching simulation for ${ticker}...`);
+  // TODO: Replace with actual fetch: 
+  // const response = await fetch(`http://127.0.0.1:8001/simulate_strategy?ticker=${ticker}`);
+  // return response.json();
+  await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call latency
+  return {
+    ...MOCK_SIMULATION_DATA,
+    metrics: {
+        ...MOCK_METRICS,
+        'ROI%': parseFloat((Math.random() * 5 - 2.5).toFixed(2)), // Dynamic mock ROI
+        'MaxDrawdown%': parseFloat((Math.random() * -1).toFixed(2)), // Dynamic mock Drawdown
+        'CurrentPortfolioValue': 100000 * (1 + parseFloat((Math.random() * 0.05 - 0.02).toFixed(4)))
+    }
+  }; 
+};
+
+const fetchXAI = async (ticker: Ticker): Promise<XAIResult> => {
+  console.log(`Fetching XAI for ${ticker}...`);
+  // TODO: Replace with actual fetch: 
+  // const response = await fetch(`http://127.0.0.1:8001/get_xai?ticker=${ticker}`);
+  // return response.json();
+  await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call latency
+  return MOCK_XAI_DATA;
+};
+// ---------------------------------------------------
+
+export default function Dashboard() {
+  const [selectedTicker, setSelectedTicker] = useState<Ticker>('');
+  const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
+  const [xaiResult, setXAIResult] = useState<XAIResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleRunSimulation = async () => {
+    if (!selectedTicker) return;
+
+    setIsLoading(true);
+    setSimulationResult(null);
+    setXAIResult(null);
+
+    try {
+      // Step 2 & 3 & 4: Fetch Simulation and Metrics
+      const simulation = await fetchSimulation(selectedTicker);
+      setSimulationResult(simulation);
+
+      // Step 5: Fetch XAI Insights (Can run concurrently or sequentially)
+      const xai = await fetchXAI(selectedTicker);
+      setXAIResult(xai);
+
+    } catch (error) {
+      console.error("Simulation failed:", error);
+      // Handle error state for user
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-black text-white">
+      {/* Step 1 & 6: Header with Market Mood Gauge */}
+      <Header />
+      
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        
+        {/* Step 1 & 2: Stock Selector and Run Button */}
+        <div className="mb-8 flex justify-center">
+          <StockSelector 
+            selectedTicker={selectedTicker}
+            onTickerChange={setSelectedTicker}
+            onRunSimulation={handleRunSimulation}
+            isLoading={isLoading}
+          />
+        </div>
+
+        {/* Loading State (While waiting: "Analyzing sentiment...") */}
+        {isLoading && (
+          <div className="text-center p-12 bg-slate-900/50 rounded-xl border border-slate-700 shadow-lg">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-400 mx-auto mb-4"></div>
+            <p className="text-xl font-medium text-slate-300">
+              Analyzing sentiment and simulating trades...
+            </p>
+          </div>
+        )}
+
+        {/* Results Display */}
+        {simulationResult && !isLoading && (
+          <div className="space-y-8">
+            {/* Step 4: Portfolio Summary Cards */}
+            <PortfolioSummary metrics={simulationResult.metrics} />
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Step 3: Market Reaction Chart (Large element, spanning 2/3) */}
+              <div className="lg:col-span-2">
+                <MarketChart 
+                  ticker={selectedTicker} 
+                  data={simulationResult.price_history} 
+                  transactions={simulationResult.transactions} 
+                />
+              </div>
+
+              {/* Step 5: XAI Insights (Smaller element, spanning 1/3) */}
+              <div className="lg:col-span-1">
+                {xaiResult && <XAICard keywords={xaiResult.keywords} />}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Initial Welcome Message */}
+        {!selectedTicker && !isLoading && !simulationResult && (
+             <div className="text-center p-20 bg-slate-900/50 rounded-xl border border-slate-700 shadow-lg">
+                <p className="text-4xl font-bold mb-4 text-sky-400">Welcome to Aura</p>
+                <p className="text-lg text-slate-300">Select a stock ticker and click 'Run Simulation' to see how our AI-driven strategy performs.</p>
+            </div>
+        )}
+      </main>
+    </div>
+  );
 }
