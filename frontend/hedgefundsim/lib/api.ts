@@ -14,8 +14,7 @@ export async function fetchNews() {
 }
 
 export async function fetchSentimentForTicker(ticker: string) {
-	const url = `${API_BASE}/get_sentiment?ticker=${encodeURIComponent(ticker)}`;
-	const res = await fetch(url);
+	const res = await fetch(`${API_BASE}/get_sentiment?ticker=${encodeURIComponent(ticker)}`);
 	return safeJson(res);
 }
 
