@@ -1,16 +1,34 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from dotenv import load_dotenv
 
-DATABASE_URL = "postgresql+psycopg2://postgresql://aura_db_l0o9_user:46aAh2aKai98VZiwsSlUOgfH5gJgvlEI@dpg-d501maemcj7s73e177d0-a.virginia-postgres.render.com/aura_db_l0o9"
+# Load environment variables (local only, Render ignores .env)
+load_dotenv()
 
-engine=create_engine(DATABASE_URL,echo=True)
-SessionLocal = sessionmaker(autocommit=False,autoflush = False,bind=engine)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is not set")
+
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True
+)
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
 
 Base = declarative_base()
+
 def get_db():
-    db=SessionLocal()
+    db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
 
